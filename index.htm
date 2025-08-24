@@ -2,228 +2,173 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>My Info — One-Page Profile</title>
   <style>
-    body{
-      margin:0; background:#0f172a; color:#e5e7eb; font: 16px/1.5 system-ui, sans-serif;
-      display:flex; justify-content:center; align-items:center; min-height:100vh;
-      overflow:hidden;
+    body {
+      margin:0; background:#0f172a; color:#e5e7eb;
+      font: clamp(14px, 2.5vw, 16px)/1.5 system-ui, sans-serif;
+      display:flex; justify-content:center; align-items:center;
+      min-height:100vh; overflow-x:hidden; padding:10px;
+      flex-direction:column;
     }
 
-    /* Main card animation */
-    .card{
-      max-width:600px; width:100%; background:#111827; border-radius:18px; padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-      opacity:0; transform:translateY(40px);
-      animation:fadeInUp 1s ease forwards;
-      transition:transform .3s ease, box-shadow .3s ease, box-shadow .4s ease;
+    .card {
+      width:100%; max-width:600px; background:#111827; border-radius:18px;
+      padding:clamp(16px, 4vw, 24px);
+      box-shadow:0 20px 50px rgba(0,0,0,.55);
+      opacity:0; transform:translateY(60px);
+      animation:fadeUp 1.2s ease forwards;
+      will-change: transform;
     }
-    .card:hover{
-      transform:translateY(-8px) scale(1.02);
-      box-shadow:0 0 25px rgba(34,211,238,.3), 0 20px 50px rgba(0,0,0,.55);
+    @keyframes fadeUp {to {opacity:1; transform:translateY(0)}}
+
+    /* Ripple reusable */
+    .ripple {
+      position:absolute; border-radius:50%; background:rgba(167,139,250,.6);
+      transform:scale(0); animation:ripple 0.6s ease-out;
+      pointer-events:none;
     }
-    @keyframes fadeInUp{
-      to{opacity:1; transform:translateY(0)}
+    @keyframes ripple {to {transform:scale(2.5); opacity:0;}}
+
+    /* Idle floating animation */
+    @keyframes idleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
-    .id{display:flex; gap:16px; align-items:center; margin-bottom:20px;}
-    .avatar{
-      width:90px; height:90px; border-radius:18px; border:2px solid rgba(255,255,255,.2);
+    /* Profile */
+    .id {display:flex; gap:16px; align-items:center; margin-bottom:20px; flex-wrap:wrap;}
+    .avatar {
+      width:clamp(80px, 22vw, 110px); height:clamp(80px, 22vw, 110px);
+      border-radius:18px; border:3px solid rgba(255,255,255,.2);
       background:url('https://i.postimg.cc/Rh0DPfps/itsnaz.jpg') center/cover no-repeat;
-      animation:spinIn 1.5s ease forwards;
-      transition:transform .4s ease;
+      box-shadow:0 0 20px rgba(34,211,238,.5);
+      position:relative; overflow:hidden; cursor:pointer;
+      animation: idleFloat 7s ease-in-out infinite;
     }
-    .avatar:hover{
-      animation:pulse 1.5s infinite alternate;
-    }
-    @keyframes spinIn{
-      from{transform:rotate(-360deg) scale(0.5); opacity:0}
-      to{transform:rotate(0) scale(1); opacity:1}
-    }
-    @keyframes pulse{
-      from{transform:scale(1); box-shadow:0 0 0 rgba(34,211,238,0)}
-      to{transform:scale(1.08); box-shadow:0 0 20px rgba(34,211,238,0.6)}
+    .avatar:hover {
+      transform:scale(1.15) rotate(5deg);
+      box-shadow:0 0 35px rgba(167,139,250,.9), 0 0 60px rgba(34,211,238,.8);
     }
 
-    .who{min-width:0}
-    .name{
-      font-size:1.5rem; font-weight:800; margin:0;
-      opacity:0; animation:fadeSlide 1.2s ease forwards;
-      transition:color .3s ease, text-shadow .3s ease;
+    /* Name */
+    .who {flex:1; min-width:0;}
+    .name {
+      font-size:clamp(1.4rem, 5vw, 1.8rem); font-weight:900; margin:0;
+      background:linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-size:200% auto; opacity:0; transform:translateY(20px);
+      animation:floatIn 1.4s ease forwards .4s, glowText 4s ease-in-out infinite alternate;
     }
-    .name:hover{
-      color:#22d3ee;
-      text-shadow:0 0 10px rgba(34,211,238,0.8);
+    .meta {
+      color:#cbd5e1; font-size:clamp(0.9rem, 3.5vw, 1rem);
+      text-shadow:0 0 8px rgba(34,211,238,.4);
+      opacity:0; transform:translateY(20px);
+      animation:floatIn 1.4s ease forwards .6s;
     }
-    .meta{
-      color:#94a3b8; margin-top:4px; opacity:0;
-      animation:fadeSlide 1.5s ease forwards; animation-delay:.4s
-    }
-    @keyframes fadeSlide{
-      from{opacity:0; transform:translateX(-20px)}
-      to{opacity:1; transform:translateX(0)}
-    }
+    @keyframes floatIn {to {opacity:1; transform:translateY(0);}}
+    @keyframes glowText {from{text-shadow:0 0 6px #22d3ee;} to{text-shadow:0 0 20px #a78bfa;}}
 
-    .grid{
-      display:grid; gap:14px; grid-template-columns:repeat(2, minmax(0,1fr)); margin-bottom:18px
+    /* Tiles */
+    .grid {
+      display:grid; gap:14px; grid-template-columns:repeat(auto-fit, minmax(140px,1fr));
+      margin-bottom:18px;
     }
-    .tile{
+    .tile {
+      position:relative;
       background:#0b1023; border:1px solid rgba(148,163,184,.18);
-      border-radius:14px; padding:12px;
-      opacity:0; transform:translateY(20px) scale(0.95);
-      animation:fadeZoom .8s ease forwards;
-      transition:transform .4s ease, background .4s ease;
+      border-radius:14px; padding:14px;
+      box-shadow:inset 0 0 10px rgba(34,211,238,.25);
+      transition:transform .5s cubic-bezier(.25,.8,.25,1), box-shadow .5s;
+      opacity:0; transform:translateY(25px);
+      animation:floatIn 1s ease forwards, idleFloat 6s ease-in-out infinite;
+      overflow:hidden; cursor:pointer;
     }
-    .tile:nth-child(1){animation-delay:.5s}
-    .tile:nth-child(2){animation-delay:.7s}
-    .tile:nth-child(3){animation-delay:.9s}
-    .tile:nth-child(4){animation-delay:1.1s}
-    .tile:hover{
-      transform:translateY(-6px) scale(1.05) rotate(1deg);
-      background:#1e293b;
-      box-shadow:0 0 15px rgba(167,139,250,0.4);
+    .tile:nth-child(1){animation-delay:.8s, 0s;}
+    .tile:nth-child(2){animation-delay:1s, 2s;}
+    .tile:hover {
+      transform:translateY(-6px) scale(1.08);
+      box-shadow:0 0 25px rgba(167,139,250,.8), inset 0 0 12px rgba(34,211,238,.4);
     }
-    .tile h4{margin:0 0 6px; font-size:.9rem; color:#cbd5e1}
-    .tile .v{color:#f8fafc; font-weight:600}
+    .tile h4 {margin:0 0 6px; font-size:clamp(.85rem, 3vw, 1rem); color:#a78bfa;}
+    .tile .v {color:#fff; font-weight:600; text-shadow:0 0 10px rgba(34,211,238,.6);}
 
-    @keyframes fadeZoom{
-      from{opacity:0; transform:translateY(20px) scale(0.9)}
-      to{opacity:1; transform:translateY(0) scale(1)}
-    }
-
-    .bio{
+    /* Bio */
+    .bio {
+      position:relative;
       background:#0b1023; border:1px solid rgba(148,163,184,.18);
-      border-radius:14px; padding:12px; margin-bottom:18px;
-      opacity:0; animation:fadeInSeq 1s ease forwards; animation-delay:1.3s;
-      transition:transform .3s ease, background .3s ease, box-shadow .3s ease;
+      border-radius:14px; padding:14px; margin-bottom:18px;
+      opacity:0; transform:translateY(20px);
+      animation:floatIn 1s ease forwards 1.2s, idleFloat 7s ease-in-out infinite;
+      overflow:hidden; cursor:pointer;
+      transition:transform .4s ease, box-shadow .4s ease;
     }
-    .bio:hover{
-      transform:translateY(-4px) scale(1.02); background:#1e293b;
-      box-shadow:0 0 15px rgba(34,211,238,0.4);
-    }
-    .bio h4{margin:0 0 6px; font-size:.9rem; color:#cbd5e1}
+    .bio:hover {transform:scale(1.03); box-shadow:0 0 25px rgba(34,211,238,.7);}
+    .bio h4 {margin:0 0 6px; font-size:clamp(.9rem, 3vw, 1rem); color:#22d3ee; text-shadow:0 0 12px rgba(34,211,238,.6);}
+    .bio div {text-shadow:0 0 10px rgba(167,139,250,.6);}
 
-    .links a{
-      color:#22d3ee; text-decoration:none; margin-right:12px; position:relative;
-      transition:color .3s ease;
-      opacity:0; animation:fadeSlide 1s ease forwards;
+    /* Links */
+    .links a {
+      position:relative;
+      color:#22d3ee; text-decoration:none; margin-right:12px;
+      font-size:clamp(.9rem, 3.5vw, 1rem);
+      opacity:0; transform:translateY(20px);
+      animation:floatIn 1s ease forwards, idleFloat 8s ease-in-out infinite;
+      transition:all .4s ease;
+      overflow:hidden; cursor:pointer;
+      display:inline-block;
     }
-    .links a:nth-child(1){animation-delay:1.5s}
-    .links a:nth-child(2){animation-delay:1.7s}
-    .links a:nth-child(3){animation-delay:1.9s}
-    .links a::after{
-      content:""; position:absolute; left:0; bottom:-2px; width:0%; height:2px;
-      background:#22d3ee; transition:.3s
+    .links a:nth-child(1){animation-delay:1.4s, 0s;}
+    .links a:nth-child(2){animation-delay:1.6s, 2s;}
+    .links a:nth-child(3){animation-delay:1.8s, 4s;}
+    .links a::after {
+      content:""; position:absolute; left:0; bottom:-3px; width:0%; height:2px;
+      background:#a78bfa; transition:.4s;
     }
-    .links a:hover::after{width:100%}
-    .links a:hover{color:#a78bfa}
+    .links a:hover {
+      color:#f472b6; text-shadow:0 0 15px #f472b6;
+      transform:translateY(-2px) scale(1.07);
+    }
+    .links a:hover::after {width:100%;}
 
-    @keyframes fadeInSeq{
-      from{opacity:0; transform:translateY(30px)}
-      to{opacity:1; transform:translateY(0)}
+    /* Music Control */
+    #music-control {
+      position:fixed; bottom:60px; right:20px; cursor:pointer; font-size:2rem;
+      background:#0b1023; border:1px solid rgba(148,163,184,.3);
+      padding:10px; border-radius:12px;
+      box-shadow:0 0 12px rgba(34,211,238,.5);
+      transition:all .5s cubic-bezier(.25,.8,.25,1);
     }
+    #music-control:hover {
+      transform:scale(1.15) rotate(8deg);
+      box-shadow:0 0 25px rgba(167,139,250,.9);
+    }
+    .playing {
+      animation:musicPulse 1.2s infinite;
+      box-shadow:0 0 20px rgba(34,211,238,.8), 0 0 40px rgba(167,139,250,.7);
+    }
+    .playing:hover {
+      transform:scale(1.25) rotate(-8deg);
+      box-shadow:0 0 30px rgba(167,139,250,1), 0 0 60px rgba(34,211,238,.9);
+    }
+    @keyframes musicPulse {0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);}}
 
-    /* Floating background animation */
-    .bg-anim{
-      position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden;
-    }
-    .shape{
-      position:absolute; border-radius:50%; opacity:.6;
-      animation:float 6s ease-in-out infinite, drift 20s linear infinite, colorShift 10s linear infinite;
-    }
-    .shape.circle{background:rgba(34,211,238,.15);}
-    .shape.square{background:rgba(167,139,250,.15); border-radius:8px;}
-    .shape.triangle{
-      width:0; height:0; border-left:25px solid transparent; border-right:25px solid transparent;
-      border-bottom:45px solid rgba(34,211,238,.15);
-      animation:floatRotate 10s linear infinite, drift 25s linear infinite, colorShift 8s linear infinite;
-    }
+    /* Footer */
+    footer {margin-top:20px; font-size:clamp(.9rem, 3.5vw, 1rem); color:#22d3ee; animation:footerGlow 3s ease-in-out infinite alternate;}
+    @keyframes footerGlow {from{text-shadow:0 0 8px #22d3ee;} to{text-shadow:0 0 22px #a78bfa;}}
 
-    /* Spread shapes in every corner */
-    .shape:nth-child(1){width:200px; height:200px; top:5%; left:10%; animation-delay:0s; animation-duration:12s}
-    .shape:nth-child(2){width:150px; height:150px; bottom:10%; right:10%; animation-delay:3s; animation-duration:14s}
-    .shape:nth-child(3){width:100px; height:100px; top:60%; left:75%; animation-delay:5s; animation-duration:10s}
-    .shape:nth-child(4){width:80px; height:80px; bottom:20%; left:5%; background:rgba(139,92,246,.15); animation-delay:7s; animation-duration:13s}
-    .shape:nth-child(5){width:60px; height:60px; top:15%; right:15%; background:rgba(251,191,36,.15); animation-delay:2s; animation-duration:11s}
-    .shape:nth-child(6){width:120px; height:120px; top:80%; left:40%; background:rgba(236,72,153,.15); animation-delay:4s; animation-duration:15s}
-    .shape:nth-child(7){width:90px; height:90px; top:30%; right:5%; background:rgba(34,197,94,.15); animation-delay:6s; animation-duration:12s}
-
-    @keyframes float{
-      0%,100%{transform:translateY(0)}
-      50%{transform:translateY(-40px)}
-    }
-    @keyframes floatRotate{
-      0%{transform:translateY(0) rotate(0)}
-      50%{transform:translateY(-40px) rotate(180deg)}
-      100%{transform:translateY(0) rotate(360deg)}
-    }
-    @keyframes colorShift{
-      0%{filter:hue-rotate(0deg)}
-      50%{filter:hue-rotate(180deg)}
-      100%{filter:hue-rotate(360deg)}
-    }
-    @keyframes drift{
-      0%{transform:translate(0,0)}
-      50%{transform:translate(40px, -30px)}
-      100%{transform:translate(0,0)}
+    /* Background shapes */
+    .bg-anim {position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden;}
+    .shape {position:absolute; border-radius:50%; opacity:.4; filter:blur(2px);}
+    .shape.circle {background:rgba(34,211,238,.2);}
+    .shape.square {background:rgba(167,139,250,.2); border-radius:8px;}
+    .shape.triangle {
+      width:0; height:0; border-left:20px solid transparent; border-right:20px solid transparent; border-bottom:35px solid rgba(34,211,238,.25);
     }
 
-    /* Music player */
-    .music-player{
-      margin-top:20px; text-align:center;
-      background:#0b1023; border:1px solid rgba(148,163,184,.18);
-      border-radius:14px; padding:12px;
-      box-shadow:0 0 10px rgba(34,211,238,.3);
-      opacity:0; transform:scale(0.9);
-      animation:musicPop 1s ease forwards; animation-delay:2.2s;
-    }
-    .music-player h4{
-      margin-bottom:10px; color:#22d3ee; text-shadow:0 0 6px rgba(34,211,238,.6);
-      animation:glowTitle 2s infinite alternate;
-    }
-    @keyframes musicPop{
-      to{opacity:1; transform:scale(1)}
-    }
-    @keyframes glowTitle{
-      from{text-shadow:0 0 6px rgba(34,211,238,.6)}
-      to{text-shadow:0 0 15px rgba(167,139,250,.8)}
-    }
-    .music-player audio{
-      width:100%; outline:none; display:none;
-    }
-
-    /* Custom controls */
-    .player-controls{
-      display:flex; justify-content:center; align-items:center; gap:12px;
-      animation:fadeInSeq 1s ease forwards; animation-delay:2.5s;
-    }
-    .btn{
-      background:#0f172a; border:1px solid #22d3ee; color:#22d3ee;
-      padding:8px 14px; border-radius:8px; cursor:pointer;
-      font-weight:600; transition:all .3s ease;
-      box-shadow:0 0 10px rgba(34,211,238,.3);
-    }
-    .btn:hover{
-      background:#22d3ee; color:#0f172a; box-shadow:0 0 15px rgba(34,211,238,.6);
-    }
-    .progress{
-      flex:1; height:8px; background:#1e293b; border-radius:4px;
-      overflow:hidden; cursor:pointer; box-shadow:inset 0 0 5px rgba(34,211,238,.4);
-    }
-    .progress-bar{
-      width:0%; height:100%; background:#22d3ee;
-      transition:width .2s;
-      box-shadow:0 0 10px rgba(34,211,238,.6);
-    }
-    .progress-bar.pulse{
-      animation:pulseGlow 1s infinite;
-    }
-    @keyframes pulseGlow{
-      0%{box-shadow:0 0 6px rgba(34,211,238,.4)}
-      50%{box-shadow:0 0 20px rgba(167,139,250,.8)}
-      100%{box-shadow:0 0 6px rgba(34,211,238,.4)}
-    }
+    /* Mobile */
+    @media (max-width:480px){.links a{display:block; margin-bottom:6px;}}
   </style>
 </head>
 <body>
@@ -237,9 +182,9 @@
     <div class="shape square"></div>
   </div>
 
-  <section class="card">
+  <section class="card" id="card">
     <div class="id">
-      <div class="avatar"></div>
+      <div class="avatar ripple-target tilt" id="avatar"></div>
       <div class="who">
         <h3 class="name">Naz Rodriguez</h3>
         <div class="meta">Birthday: May 29, 2007 • Age: 18</div>
@@ -247,74 +192,97 @@
     </div>
 
     <div class="grid">
-      <div class="tile"><h4>Phone</h4><div class="v">(516) 870-2747</div></div>
-      <div class="tile"><h4>Email</h4><div class="v">Nazrodriguez4@gmail.com</div></div>
+      <div class="tile ripple-target tilt"><h4>Phone</h4><div class="v">(516) 870-2747</div></div>
+      <div class="tile ripple-target tilt"><h4>Email</h4><div class="v">Nazrodriguez4@gmail.com</div></div>
     </div>
 
-    <div class="bio">
+    <div class="bio ripple-target tilt">
       <h4>About</h4>
       <div>Yerrrrr its Naz :)</div>
     </div>
 
     <div class="links">
-      <a href="https://x.com/Itsnzzzz" target="_blank">X/Twitter</a>
-      <a href="https://www.instagram.com/itsnzzzz#" target="_blank">Instagram</a>
-      <a href="https://www.tiktok.com/@itsnzzy" target="_blank">TikTok</a>
-    </div>
-
-    <div class="music-player">
-      <h4>My Music</h4>
-      <audio id="audio" autoplay>
-        <source src="https://audio.jukehost.co.uk/9wVAZsk3qcMMo2mlqFDtQ5PoBvoWiSkh" type="audio/mpeg">
-      </audio>
-      <div class="player-controls">
-        <button class="btn" id="play">▶</button>
-        <div class="progress" id="progress">
-          <div class="progress-bar" id="progress-bar"></div>
-        </div>
-      </div>
+      <a href="https://x.com/Itsnzzzz" target="_blank" class="ripple-target tilt">X/Twitter</a>
+      <a href="https://www.instagram.com/itsnzzzz#" target="_blank" class="ripple-target tilt">Instagram</a>
+      <a href="https://www.tiktok.com/@itsnzzy" target="_blank" class="ripple-target tilt">TikTok</a>
     </div>
   </section>
 
+  <audio id="audio" autoplay>
+    <source src="https://audio.jukehost.co.uk/9wVAZsk3qcMMo2mlqFDtQ5PoBvoWiSkh" type="audio/mpeg">
+  </audio>
+  <div id="music-control"><span id="music-icon">🔊</span></div>
+  <footer>@Naz</footer>
+
   <script>
     const audio = document.getElementById('audio');
-    const playBtn = document.getElementById('play');
-    const progress = document.getElementById('progress');
-    const progressBar = document.getElementById('progress-bar');
+    const icon = document.getElementById('music-icon');
+    const iconBox = document.getElementById('music-control');
 
-    playBtn.addEventListener('click', () => {
-      if(audio.paused){
-        audio.play();
-        playBtn.textContent = '⏸';
-        progressBar.classList.add('pulse');
-      } else {
-        audio.pause();
-        playBtn.textContent = '▶';
-        progressBar.classList.remove('pulse');
-      }
+    // Toggle music
+    iconBox.addEventListener('click', e => {
+      addRipple(e, iconBox);
+      audio.paused ? audio.play() : audio.pause();
+    });
+    audio.addEventListener('play', () => {icon.textContent = '🔊'; iconBox.classList.add('playing');});
+    audio.addEventListener('pause', () => {icon.textContent = '🔇'; iconBox.classList.remove('playing');});
+
+    // Ripple effect
+    function addRipple(e, target) {
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      const rect = target.getBoundingClientRect();
+      ripple.style.left = (e.clientX - rect.left - 50)+'px';
+      ripple.style.top = (e.clientY - rect.top - 50)+'px';
+      ripple.style.width = ripple.style.height = '100px';
+      target.appendChild(ripple);
+      setTimeout(()=>ripple.remove(), 600);
+    }
+    document.querySelectorAll('.ripple-target').forEach(el=>{
+      el.addEventListener('click', e=> addRipple(e, el));
     });
 
-    audio.addEventListener('timeupdate', () => {
-      const percent = (audio.currentTime / audio.duration) * 100;
-      progressBar.style.width = percent + '%';
-    });
-
-    progress.addEventListener('click', (e) => {
-      const rect = progress.getBoundingClientRect();
-      const offsetX = e.clientX - rect.left;
-      const width = rect.width;
-      const percent = offsetX / width;
-      audio.currentTime = percent * audio.duration;
-    });
-
-    // Set play button state on load
-    window.addEventListener('load', () => {
-      audio.play().then(() => {
-        playBtn.textContent = '⏸';
-        progressBar.classList.add('pulse');
-      }).catch(() => {
-        playBtn.textContent = '▶'; // if autoplay is blocked
+    // Tilt effect (desktop)
+    document.querySelectorAll('.tilt').forEach(el => {
+      el.addEventListener('mousemove', e => {
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width/2;
+        const centerY = rect.height/2;
+        const rotateX = ((y - centerY) / centerY) * 8; 
+        const rotateY = ((x - centerX) / centerX) * -8;
+        el.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
       });
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = "rotateX(0) rotateY(0) scale(1)";
+      });
+    });
+
+    // Background shapes parallax (mouse + gyroscope)
+    const shapes = document.querySelectorAll('.shape');
+    document.addEventListener('mousemove', e => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      shapes.forEach((shape, i) => {
+        const speed = (i+1) * 3;
+        shape.style.transform = `translate(${x/speed}px, ${y/speed}px)`;
+      });
+    });
+
+    // Mobile gyroscope support
+    window.addEventListener('deviceorientation', e => {
+      const x = e.gamma; // left-right
+      const y = e.beta;  // front-back
+      shapes.forEach((shape, i) => {
+        const speed = (i+1) * 3;
+        shape.style.transform = `translate(${x/speed}px, ${y/speed}px)`;
+      });
+    });
+
+    // Autoplay attempt
+    window.addEventListener('load', () => {
+      audio.play().catch(()=>{icon.textContent='🔇';});
     });
   </script>
 </body>
